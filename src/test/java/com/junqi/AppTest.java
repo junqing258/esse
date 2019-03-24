@@ -1,4 +1,4 @@
-package com.junqing.app;
+package com.junqi;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
