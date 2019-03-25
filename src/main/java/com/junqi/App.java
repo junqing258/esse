@@ -1,11 +1,13 @@
 package com.junqi;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -18,36 +20,47 @@ import com.googlecode.pngtastic.core.PngOptimizer;
 public class App {
 
 	static String INPUT;
-	static String OUTPUT;
+	static String OUTPUT; 
+	static String OUTCONF;
+	static String INCLUDE;
+	static String PUBDIR;
+	
 
 	static ArrayList<String> imageIn = new ArrayList<String>();
-
 	static int count = 0;
 
 	public static void main(String[] args) {
-		App app = new App();
-
-		Properties props;
+		
 		try {
-			props = getProperty("resources/config.properties");
-
+			Properties props = getProperty("resources/config.properties");
 			INPUT = props.getProperty("input");
-			OUTPUT = props.getProperty("output");
+			OUTCONF = props.getProperty("outconf");
+			INCLUDE = props.getProperty("include");
+			PUBDIR = props.getProperty("pubdir");
+			final int cupNum = Integer.parseInt(props.getProperty("cupNum"));
+			
+			InputStream is = new FileInputStream(OUTCONF);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+			String line = reader.readLine();
+			reader.close();
+	        is.close();
+	        
+	        final String OUTPUT = line.endsWith("/") ? line : line + "/";
 
-			app.traverseFolder(INPUT);
+			final ArrayList<String> imageIn = parseYaml(INCLUDE);
 
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < cupNum; i++) {
 				Runnable task = new Runnable() {
-					@Override
 					public void run() {
 						int c;
-						while ((c = addCount()) < imageIn.size() - 1) {
-							String res = imageIn.get(c);
+						while ((c = addCount()) < imageIn.size()) {
+							String res = INPUT + imageIn.get(c);
 							String name = res.substring(INPUT.length());
-							String target = OUTPUT + name;
-							System.out.println("文件:" + res);
+							String target = OUTPUT + PUBDIR + name;
 							try {
+								System.out.println("compresse:" + res);
 								compressedFile(res, target);
+								System.out.println("compressed:" + target);
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -111,9 +124,10 @@ public class App {
 	 * 解析yaml
 	 * 
 	 * @param path
+	 * @return 
 	 * @throws IOException
 	 */
-	public void parseYaml(String path) throws IOException {
+	public static ArrayList<String> parseYaml(String path) throws IOException {
 		Yaml yaml = new Yaml();
 		File dumpFile = new File(path);
 		// Object load = yaml.load(new FileInputStream(dumpFile));
@@ -123,12 +137,13 @@ public class App {
 		for (String element : list) {
 			System.out.println(element);
 		}
+		return list;
 	}
 
 	public static void compressedFile(String resourcesPath, String targetPath) throws IOException {
 		File targetFile = new File(targetPath.replaceFirst("\\w+.png$", ""));
 		if (!targetFile.exists()) {
-			System.out.println("mkdir：" + targetFile);
+			System.out.println("mkdir:" + targetFile);
 			targetFile.mkdirs();
 		}
 
