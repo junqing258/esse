@@ -35,6 +35,20 @@
 			<artifactId>snakeyaml</artifactId>
 			<version>1.13</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.badlogicgames.gdx/gdx -->
+		<dependency>
+		    <groupId>com.badlogicgames.gdx</groupId>
+		    <artifactId>gdx</artifactId>
+		    <version>1.9.9</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.badlogicgames.gdx/gdx-tools -->
+		<dependency>
+		    <groupId>com.badlogicgames.gdx</groupId>
+		    <artifactId>gdx-tools</artifactId>
+		    <version>1.9.9</version>
+		</dependency>
+		
 
 	</dependencies>
 
