@@ -1,5 +1,8 @@
 package com.junqi;
 
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -11,6 +14,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.regex.Pattern;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.yaml.snakeyaml.Yaml;
 
@@ -30,7 +39,47 @@ public class App {
 	static int count = 0;
 
 	public static void main(String[] args) {
-		
+        JFrame frame = new JFrame("DeepSea");
+        frame.setSize(750, 400);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JPanel panel = new JPanel();    
+        frame.add(panel);
+        placeComponents(panel);
+        frame.setVisible(true);
+	}
+	
+	private static void placeComponents(JPanel panel) {
+        /* 
+         * 这边设置布局为 null
+         * setBounds(x, y, width, height)
+         */
+		FlowLayout layout = new FlowLayout(FlowLayout.LEADING, 20, 30);
+        panel.setLayout(layout);
+
+        JLabel userLabel = new JLabel("gameHall:");
+        userLabel.setBounds(10, 20, 80, 25);
+        panel.add(userLabel);
+
+        JTextField userText = new JTextField(20);
+        userText.setBounds(0,0, 265,25);
+        panel.add(userText);
+
+        // 创建登录按钮
+        JButton loginButton = new JButton("确定");
+        loginButton.setBounds(0, 0, 80, 25);
+        panel.add(loginButton);
+        
+        loginButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("click");
+				startCompress();
+			}
+        	
+        });
+    }
+	
+	public static void startCompress() {
 		try {
 			Properties props = getProperty("resources/config.properties");
 			INPUT = props.getProperty("input");
@@ -38,14 +87,14 @@ public class App {
 			INCLUDE = props.getProperty("include");
 			PUBDIR = props.getProperty("pubdir");
 			final int cupNum = Integer.parseInt(props.getProperty("cupNum"));
-			
+
 			InputStream is = new FileInputStream(OUTCONF);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 			String line = reader.readLine();
 			reader.close();
-	        is.close();
-	        
-	        final String OUTPUT = line.endsWith("/") ? line : line + "/";
+			is.close();
+
+			final String OUTPUT = line.endsWith("/") ? line : line + "/";
 
 			final ArrayList<String> imageIn = parseYaml(INCLUDE);
 
@@ -74,6 +123,7 @@ public class App {
 			e1.printStackTrace();
 		}
 	}
+
 
 	public static synchronized int addCount() {
 		System.out.println("count:" + count);
