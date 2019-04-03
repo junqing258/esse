@@ -70,7 +70,6 @@ public class App {
         panel.add(loginButton);
         
         loginButton.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("click");
 				startCompress();
