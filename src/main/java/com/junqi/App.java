@@ -35,48 +35,12 @@ public class App {
 	static String PUBDIR;
 	
 
-	static ArrayList<String> imageIn = new ArrayList<String>();
+	static ArrayList<String> imageList = new ArrayList<String>();
 	static int count = 0;
 
 	public static void main(String[] args) {
-        JFrame frame = new JFrame("DeepSea");
-        frame.setSize(750, 400);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        JPanel panel = new JPanel();    
-        frame.add(panel);
-        placeComponents(panel);
-        frame.setVisible(true);
+		startCompress();
 	}
-	
-	private static void placeComponents(JPanel panel) {
-        /* 
-         * 这边设置布局为 null
-         * setBounds(x, y, width, height)
-         */
-		FlowLayout layout = new FlowLayout(FlowLayout.LEADING, 20, 30);
-        panel.setLayout(layout);
-
-        JLabel userLabel = new JLabel("gameHall:");
-        userLabel.setBounds(10, 20, 80, 25);
-        panel.add(userLabel);
-
-        JTextField userText = new JTextField(20);
-        userText.setBounds(0,0, 265,25);
-        panel.add(userText);
-
-        // 创建登录按钮
-        JButton loginButton = new JButton("确定");
-        loginButton.setBounds(0, 0, 80, 25);
-        panel.add(loginButton);
-        
-        loginButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.out.println("click");
-				startCompress();
-			}
-        	
-        });
-    }
 	
 	public static void startCompress() {
 		try {
@@ -94,16 +58,18 @@ public class App {
 			is.close();
 
 			final String OUTPUT = line.endsWith("/") ? line : line + "/";
+			
+//			traverseFolder(INPUT);
 
-			final ArrayList<String> imageIn = parseYaml(INCLUDE);
+			final ArrayList<String> imageList = parseYaml(INCLUDE);
 
 			for (int i = 0; i < cupNum; i++) {
 				Runnable task = new Runnable() {
 					public void run() {
 						int c;
-						while ((c = addCount()) < imageIn.size()) {
-							String res = INPUT + imageIn.get(c);
-							String name = res.substring(INPUT.length());
+						while ((c = addCount()) < imageList.size()) {
+							String name = imageList.get(c);//res.substring(INPUT.length());
+							String res = INPUT + name;
 							String target = OUTPUT + PUBDIR + name;
 							try {
 								System.out.println("compresse:" + res);
@@ -143,7 +109,7 @@ public class App {
 	 * @param path
 	 * @throws IOException
 	 */
-	public void traverseFolder(String path) {
+	public static void traverseFolder(String path) {
 		File file = new File(path);
 		if (file.exists()) {
 			File[] files = file.listFiles();
@@ -159,7 +125,8 @@ public class App {
 						String fileStr = file2.getAbsolutePath();
 						String pattern = ".*\\.png";
 						if (Pattern.matches(pattern, fileStr)) {
-							imageIn.add(fileStr);
+							String str = fileStr.replaceAll("\\\\", "/").substring(INPUT.length());
+							imageList.add(str);
 						}
 					}
 				}
@@ -190,14 +157,21 @@ public class App {
 	}
 
 	public static void compressedFile(String resourcesPath, String targetPath) throws IOException {
-		File targetFile = new File(targetPath.replaceFirst("\\w+.png$", ""));
-		if (!targetFile.exists()) {
-			System.out.println("mkdir:" + targetFile);
-			targetFile.mkdirs();
+		File targetDir = new File(targetPath.replaceFirst("\\w+.png$", ""));
+		if (!targetDir.exists()) {
+			System.out.println("mkdir:" + targetDir);
+			targetDir.mkdirs();
+		}
+		
+		File targetFile = new File(targetPath);
+		if (targetFile.exists()) {
+			 if (targetFile.delete()) {
+                System.out.println("删除文件" + targetPath);
+            }
 		}
 
 		final PngOptimizer optimizer = new PngOptimizer();
-		optimizer.setCompressor("zopfli", null);
+//		optimizer.setCompressor("zopfli", null);
 
 		final InputStream in = new BufferedInputStream(new FileInputStream(resourcesPath));
 		final PngImage image = new PngImage(in);
