@@ -1,8 +1,5 @@
 package com.junqi;
 
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -15,12 +12,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
+import org.apache.commons.io.FileUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import com.googlecode.pngtastic.core.PngImage;
@@ -183,6 +175,13 @@ public class App {
 
 		in.close();
 		optimizedBytes.close();
+		
+		File targetAltls = new File(resourcesPath.replaceFirst("\\.png$", ".json"));
+//		System.out.println("复制文件:" + targetAltls + "::::" + targetDir);
+		if (targetAltls.exists()) {
+			 FileUtils.	copyFileToDirectory(targetAltls, targetDir);
+			 System.out.println("复制文件:" + targetAltls);
+		}
 	}
 
 }
